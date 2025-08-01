@@ -1,0 +1,51 @@
+name: Generate SBOM from Python Environment and Requirements
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sbom-env:
+    name: Generate SBOM (Environment & Requirements)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Create Virtual Environment and Install Requirements
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Install sbom4python
+        run: |
+          source venv/bin/activate
+          pip install sbom4python
+
+      - name: Generate SBOM from Installed Packages (SPDX)
+        run: |
+          source venv/bin/activate
+          sbom4python -e -f spdx -o sbom-env.spdx.json
+
+      - name: Generate SBOM from requirements.txt (SPDX)
+        run: |
+          source venv/bin/activate
+          sbom4python -r requirements.txt -f spdx -o sbom-reqs.spdx.json
+
+      - name: Upload SBOM Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-reports
+          path: |
+            sbom-env.cyclonedx.json
+            sbom-env.spdx.json
+
