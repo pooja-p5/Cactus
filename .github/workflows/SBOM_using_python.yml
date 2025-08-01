@@ -34,12 +34,12 @@ jobs:
       - name: Generate SBOM from Installed Packages (SPDX)
         run: |
           source venv/bin/activate
-          sbom4python -e -f spdx -o sbom-env.spdx.json
+          sbom4python --system --sbom spdx --format json -o sbom-env.spdx.json
 
       - name: Generate SBOM from requirements.txt (SPDX)
         run: |
           source venv/bin/activate
-          sbom4python -r requirements.txt -f spdx -o sbom-reqs.spdx.json
+          sbom4python -r requirements.txt --sbom spdx --format json -o sbom-reqs.spdx.json
 
       - name: Upload SBOM Artifacts
         uses: actions/upload-artifact@v4
